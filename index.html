@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini AI Chatbot Interface</title>
+    <style>
+        /* --- CSS STYLES --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .chat-container {
+            width: 400px;
+            max-width: 90%;
+            height: 600px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background-color: #4a90e2;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .chat-history {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #fafafa;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Message Bubbles */
+        .message {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 10px;
+            line-height: 1.4;
+            font-size: 0.95rem;
+            word-wrap: break-word;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background-color: #4a90e2;
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+
+        .message.bot {
+            align-self: flex-start;
+            background-color: #e0e0e0;
+            color: #333;
+            border-bottom-left-radius: 2px;
+        }
+
+        .loading-indicator {
+            font-size: 0.8rem;
+            color: #888;
+            align-self: flex-start;
+            margin-left: 10px;
+            display: none; /* Hidden by default */
+        }
+
+        /* Input Area */
+        .input-area {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            background-color: white;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        input[type="text"]:focus {
+            border-color: #4a90e2;
+        }
+
+        button {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-left: 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #357abd;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="chat-header">Gemini Assistant</div>
+        <div class="chat-history" id="chat-history">
+            <div class="message bot">Hello! How can I help you today?</div>
+        </div>
+        <div class="loading-indicator" id="loading">Gemini is thinking...</div>
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off">
+            <button id="send-btn">Send</button>
+        </div>
+    </div>
+
+    <script>
+        /* --- JAVASCRIPT LOGIC --- */
+        const chatHistory = document.getElementById('chat-history');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const loadingIndicator = document.getElementById('loading');
+
+        // Event Listeners
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        async function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            // 1. Add User Message to UI
+            addMessageToUI(text, 'user');
+            userInput.value = '';
+            
+            // 2. Show Loading Indicator
+            loadingIndicator.style.display = 'block';
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+
+            try {
+                // 3. Call Gemini API
+                const response = await callGeminiAPI(text);
+                
+                // 4. Add Bot Response to UI
+                addMessageToUI(response, 'bot');
+            } catch (error) {
+                console.error('Error:', error);
+                addMessageToUI("Sorry, I encountered an error. Please check the console.", 'bot');
+            } finally {
+                // 5. Hide Loading Indicator
+                loadingIndicator.style.display = 'none';
+            }
+        }
+
+        function addMessageToUI(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', sender);
+            messageDiv.textContent = text;
+            chatHistory.appendChild(messageDiv);
+            
+            // Auto-scroll to bottom
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        // --- GEMINI API INTEGRATION PLACEHOLDER ---
+        async function callGeminiAPI(userMessage) {
+            // **********************************************************
+            // TODO: INTEGRATE GOOGLE GEMINI API HERE
+            // 1. Get an API Key from Google AI Studio.
+            // 2. Use the fetch API to send the request.
+            // **********************************************************
+
+            // Example configuration (DO NOT expose real keys in client-side code in production):
+            // const API_KEY = 'YOUR_ACTUAL_API_KEY_HERE';
+            // const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+
+            /* UNCOMMENT AND USE THIS BLOCK FOR REAL INTEGRATION
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{ text: userMessage }]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                // Extract text from Gemini response structure
+                const botReply = data.candidates[0].content.parts[0].text;
+                return botReply;
+            } catch (error) {
+                console.error("API Error:", error);
+                throw error;
+            }
+            */
+
+            // --- MOCK RESPONSE (For Testing without API Key) ---
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve(`This is a simulated response to: "${userMessage}".\n\nTo make this real, replace the mock logic in the JavaScript code with the actual fetch call to the Gemini API.`);
+                }, 1000);
+            });
+        }
+    </script>
+</body>
+</html>
